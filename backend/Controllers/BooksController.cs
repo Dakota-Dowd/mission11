@@ -15,6 +15,7 @@ public class BooksController : ControllerBase
         _context = context;
     }
 
+    // Query to return pages of data
     [HttpGet]
     public IActionResult GetBooks(int pageNum = 1, int pageSize = 5, string sortOrder = "asc")
     {
