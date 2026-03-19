@@ -33,6 +33,10 @@ function BookList() {
     return (
         <div className="container mt-4">
             <h1>Bookstore</h1>
+            {/* Sort Button*/}
+            <button className="btn btn-outline-secondary mb-3" onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}>
+                Sort: {sortOrder === 'asc' ? 'A-Z' : 'Z-A'}
+            </button>
             {books.map((book) => (
                 <div className="card mb-3" key={book.bookID}>
                     <div className='card-body'>
@@ -47,6 +51,35 @@ function BookList() {
                     </div>
                 </div>
             ))}
+                {/* Page Size Dropdown*/}
+                <div className="mb-3">
+                    <label>Results per page: </label>
+                    <select value={pageSize} onChange={(e) => {
+                        setPageSize(Number(e.target.value));
+                        setPageNum(1);
+                    }}>
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    </select>
+                </div>
+
+                {/* Pagination Buttons*/}
+                <div>
+                    <button className="btn btn-secondary me-1" disabled={pageNum == 1} onClick={() => setPageNum(pageNum - 1)}>
+                        Previous
+                    </button>
+                </div>
+
+                {Array.from({ length: Math.ceil(totalItems / pageSize) }, (_, i) => (
+                    <button key={i + 1} className={`btn me-1 ${pageNum === i + 1 ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setPageNum(i + 1)} >
+                        {i + 1}
+                    </button>
+                ))}
+
+                <button className="btn btn-secondary ms-1" disabled={pageNum === Math.ceil(totalItems / pageSize)} onClick={() => setPageNum(pageNum + 1)} >
+                    Next
+                </button>
         </div>
     );
 }
