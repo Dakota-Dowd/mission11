@@ -17,9 +17,15 @@ public class BooksController : ControllerBase
 
     // Query to return pages of data
     [HttpGet]
-    public IActionResult GetBooks(int pageNum = 1, int pageSize = 5, string sortOrder = "asc")
+    public IActionResult GetBooks(int pageNum = 1, int pageSize = 5, string sortOrder = "asc", string? category = null)
     {
         var query = _context.Books.AsQueryable();
+
+        // Filter by category
+        if (!string.IsNullOrEmpty(category))
+        {
+            query = query.Where(b => b.Category == category);
+        }
 
         query = sortOrder == "desc"
             ? query.OrderByDescending(b => b.Title)
@@ -33,5 +39,16 @@ public class BooksController : ControllerBase
             .ToList();
 
         return Ok(new { books, totalNumBooks });
+    }
+
+
+    // Get unique categories
+    [HttpGet("GetBookCategories")]
+    public IActionResult GetBookCategories()
+    {
+        var categories = _context.Books
+            .Select(b => b.Category)
+            .Distinct()
+            .ToList();
     }
 }
