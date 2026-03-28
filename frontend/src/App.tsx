@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import BookListPage from './pages/BookListPage';
-import CartPage from './pages/CartPage';
+import CartPage from './pages/CartPages';
 
 function App() {
   return (
