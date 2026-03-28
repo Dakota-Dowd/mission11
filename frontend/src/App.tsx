@@ -1,7 +1,16 @@
-import BookList from './components/BookList';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import BookListPage from './pages/BookListPage';
+import CartPage from './pages/CartPages';
 
 function App() {
-  return <BookList />;
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<BookListPage />} />
+        <Route path="/" element={<CartPage />} />
+      </Routes>
+    </Router>
+  )
 }
 
 export default App;
