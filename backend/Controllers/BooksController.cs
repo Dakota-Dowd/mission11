@@ -50,5 +50,7 @@ public class BooksController : ControllerBase
             .Select(b => b.Category)
             .Distinct()
             .ToList();
+
+        return Ok(categories);
     }
 }

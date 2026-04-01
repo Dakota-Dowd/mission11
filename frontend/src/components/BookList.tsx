@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { useCart } from '../CartContext';
+
 
 type Book = {
     bookID: number;
@@ -12,7 +14,7 @@ type Book = {
     price: number;
 };
 
-function BookList() {
+function BookList({ selectedCategory }: { selectedCategory: string }) {
     const [books, setBooks] = useState<Book[]>([]);
     const [totalItems, setTotalItems] = useState(0);
     const [pageNum, setPageNum] = useState(1);
@@ -20,20 +22,26 @@ function BookList() {
     const [sortOrder, setSortOrder] = useState('asc');
 
     useEffect(() => {
-        fetch(
-            `http://localhost:5000/books?pageNum=${pageNum}&pageSize=${pageSize}&sortOrder=${sortOrder}`
-        )
-        .then((res) => res.json())
-        .then((data) => {
-            setBooks(data.books);
-            setTotalItems(data.totalNumBooks);
-        });
-    }, [pageNum, pageSize, sortOrder]);
+        let url = `http://localhost:5000/books?pageNum=${pageNum}&pageSize=${pageSize}&sortOrder=${sortOrder}`;
+        if (selectedCategory) {
+            url += `&category=${selectedCategory}`;
+        }
+        fetch(url)
+            .then((res) => res.json())
+            .then((data) => {
+                setBooks(data.books);
+                setTotalItems(data.totalNumBooks);
+            });
+    }, [pageNum, pageSize, sortOrder, selectedCategory]);
+
+    useEffect(() => {
+        setPageNum(1);
+    }, [selectedCategory]);
+    const { addToCart } = useCart();
+
 
     return (
-        <div className="container mt-4">
-            <h1>Bookstore</h1>
-            {/* Sort Button*/}
+        <div>
             <button className="btn btn-outline-secondary mb-3" onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}>
                 Sort: {sortOrder === 'asc' ? 'A-Z' : 'Z-A'}
             </button>
@@ -48,38 +56,35 @@ function BookList() {
                         <p className='card-text'>Category: {book.category}</p>
                         <p className='card-text'>Pages: {book.pageCount}</p>
                         <p className='card-text'>Price: ${book.price.toFixed(2)}</p>
+                        <button className="btn btn-success btn-sm mt-2" onClick={() => addToCart({ bookID: book.bookID, title: book.title, price: book.price, quantity: 1 })}> Add to Cart </button>
+
                     </div>
                 </div>
             ))}
-                {/* Page Size Dropdown*/}
-                <div className="mb-3">
-                    <label>Results per page: </label>
-                    <select value={pageSize} onChange={(e) => {
-                        setPageSize(Number(e.target.value));
-                        setPageNum(1);
-                    }}>
+            <div className="mb-3">
+                <label>Results per page: </label>
+                <select value={pageSize} onChange={(e) => {
+                    setPageSize(Number(e.target.value));
+                    setPageNum(1);
+                }}>
                     <option value={5}>5</option>
                     <option value={10}>10</option>
                     <option value={20}>20</option>
-                    </select>
-                </div>
-
-                {/* Pagination Buttons*/}
-                <div>
-                    <button className="btn btn-secondary me-1" disabled={pageNum == 1} onClick={() => setPageNum(pageNum - 1)}>
-                        Previous
-                    </button>
-                </div>
-
-                {Array.from({ length: Math.ceil(totalItems / pageSize) }, (_, i) => (
-                    <button key={i + 1} className={`btn me-1 ${pageNum === i + 1 ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setPageNum(i + 1)} >
-                        {i + 1}
-                    </button>
-                ))}
-
-                <button className="btn btn-secondary ms-1" disabled={pageNum === Math.ceil(totalItems / pageSize)} onClick={() => setPageNum(pageNum + 1)} >
-                    Next
+                </select>
+            </div>
+            <div>
+                <button className="btn btn-secondary me-1" disabled={pageNum === 1} onClick={() => setPageNum(pageNum - 1)}>
+                    Previous
                 </button>
+            </div>
+            {Array.from({ length: Math.ceil(totalItems / pageSize) }, (_, i) => (
+                <button key={i + 1} className={`btn me-1 ${pageNum === i + 1 ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setPageNum(i + 1)}>
+                    {i + 1}
+                </button>
+            ))}
+            <button className="btn btn-secondary ms-1" disabled={pageNum === Math.ceil(totalItems / pageSize)} onClick={() => setPageNum(pageNum + 1)}>
+                Next
+            </button>
         </div>
     );
 }
