@@ -1,4 +1,5 @@
 using backend.Data;
+using backend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -52,5 +53,52 @@ public class BooksController : ControllerBase
             .ToList();
 
         return Ok(categories);
+    }
+
+    // Add a new book
+    [HttpPost("AddBook")]
+    public async Task<IActionResult> AddBook([FromBody] Book book)
+    {
+        _context.Books.Add(book);
+        await _context.SaveChangesAsync();
+        return Ok(book);
+    }
+
+    // Update an existing book
+    [HttpPut("UpdateBook/{bookId}")]
+    public async Task<IActionResult> UpdateBook(int bookId, [FromBody] Book updatedBook)
+    {
+        var existingBook = await _context.Books.FindAsync(bookId);
+        if (existingBook == null)
+        {
+            return NotFound();
+        }
+
+        existingBook.Title = updatedBook.Title;
+        existingBook.Author = updatedBook.Author;
+        existingBook.Publisher = updatedBook.Publisher;
+        existingBook.ISBN = updatedBook.ISBN;
+        existingBook.Classification = updatedBook.Classification;
+        existingBook.Category = updatedBook.Category;
+        existingBook.PageCount = updatedBook.PageCount;
+        existingBook.Price = updatedBook.Price;
+
+        await _context.SaveChangesAsync();
+        return Ok(existingBook);
+    }
+
+    // Delete a book
+    [HttpDelete("DeleteBook/{bookId}")]
+    public async Task<IActionResult> DeleteBook(int bookId)
+    {
+        var book = await _context.Books.FindAsync(bookId);
+        if (book == null)
+        {
+            return NotFound();
+        }
+
+        _context.Books.Remove(book);
+        await _context.SaveChangesAsync();
+        return NoContent();
     }
 }
